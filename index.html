@@ -2,7 +2,7 @@
 try {
   const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2.57.0');
   window.supabase={createClient};
-  const app=await import('./shared.js?v=6');
+  const app=await import('./shared.js?v=8');
   await app.renderMenu();document.getElementById('copy').onclick=app.copyBank;
 } catch(e) {
   console.error(e);

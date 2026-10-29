@@ -21,3 +21,5 @@ body:has(#menu) .hero{background:#fff0ed;color:#8d344a;border-radius:18px}
 @media(max-width:380px){.catalog-grid{gap:9px}.catalog-info{padding:10px}.catalog-price-value{font-size:13px}}
 
 .catalog-fallback-logo{display:block;width:72%;height:72%;object-fit:contain;opacity:.9;filter:drop-shadow(0 5px 8px #8a4d4922)}
+
+.admin-category-heading{cursor:pointer;list-style:none;font-size:21px;font-weight:750;color:#d62b7b;padding:4px 0;display:flex;justify-content:space-between;align-items:center}.admin-category-heading::-webkit-details-marker{display:none}.admin-category-heading::after{content:'⌄';font-size:25px;line-height:1}.admin-category[open]>.admin-category-heading::after{content:'⌃'}.admin-category-heading:focus-visible{outline:2px solid #ec4899;outline-offset:5px}

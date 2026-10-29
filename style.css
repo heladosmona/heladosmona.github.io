@@ -19,3 +19,5 @@ body:has(#menu) .hero{background:#fff0ed;color:#8d344a;border-radius:18px}
 .catalog-price-value{font-size:clamp(14px,2vw,20px);color:#ec4269;white-space:nowrap}
 @media(min-width:740px){.catalog-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.catalog-info{padding:17px}.catalog-media{aspect-ratio:1.25}}
 @media(max-width:380px){.catalog-grid{gap:9px}.catalog-info{padding:10px}.catalog-price-value{font-size:13px}}
+
+.catalog-fallback-logo{display:block;width:72%;height:72%;object-fit:contain;opacity:.9;filter:drop-shadow(0 5px 8px #8a4d4922)}

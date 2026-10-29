@@ -7,7 +7,42 @@ const el=(t,c,txt)=>{const x=document.createElement(t);if(c)x.className=c;if(txt
 function notify(message){const n=document.getElementById('status');if(n)n.textContent=message}
 async function getData(){const [p,s]=await Promise.all([sb.from('mona_products').select('*').order('sort_order').order('id'),sb.from('mona_settings').select('*').eq('id',1).maybeSingle()]);if(p.error)throw p.error;if(s.error)throw s.error;return {products:p.data,bank:s.data||{}}}
 let publicBank={};
-async function renderMenu(){const root=document.getElementById('menu');if(!root)return;root.textContent='Cargando carta...';try{const d=await getData();publicBank=d.bank;root.replaceChildren();for(const cat of categories){const list=d.products.filter(p=>p.category===cat&&p.available);if(!list.length)continue;const s=el('section','panel');s.append(el('h2','',cat));const head=el('div','tablehead'+(cat==='Helados'?'':' single'));(cat==='Helados'?['Sabor','Simple','Doble']:['Producto','Precio']).forEach(a=>head.append(el('span','',a)));s.append(head);for(const p of list){const row=el('div','productrow'+(cat==='Helados'?'':' single'));const name=el('div','productname');const pic=el('div','photo');if(p.image_url){const img=el('img','photo');img.src=p.image_url;img.alt=p.name;name.append(img)}else{pic.textContent=cat==='Helados'?'🍨':cat==='Cuchuflís'?'🍫':'☕';name.append(pic)}name.append(el('span','',p.name));row.append(name);(cat==='Helados'?[p.simple,p.double]:[p.price]).forEach(v=>row.append(el('span','price',money(v))));s.append(row)}root.append(s)}if(!d.products.length)root.textContent='Pronto publicaremos nuestra carta 🍦';}catch(e){root.textContent='No se pudo cargar la carta. Intenta actualizar la página.';console.error(e)}}
+async function renderMenu(){
+const root=document.getElementById('menu');if(!root)return;
+root.textContent='Cargando carta...';
+try{
+const d=await getData();publicBank=d.bank;root.replaceChildren();
+let shown=0;
+for(const cat of categories){
+const list=d.products.filter(p=>p.category===cat&&p.available);
+if(!list.length)continue;
+shown+=list.length;
+const section=el('section','catalog-section');
+const title=el('h2','catalog-title',cat);section.append(title);
+const grid=el('div','catalog-grid');
+for(const p of list){
+const card=el('article','catalog-card');
+const media=el('div','catalog-media');
+if(p.image_url){
+const img=el('img','catalog-image');img.src=p.image_url;img.alt=p.name;img.loading='lazy';
+img.onerror=()=>{media.replaceChildren(el('span','catalog-placeholder',cat==='Helados'?'🍨':cat==='Cuchuflís'?'🍫':'☕'))};
+media.append(img);
+}else media.append(el('span','catalog-placeholder',cat==='Helados'?'🍨':cat==='Cuchuflís'?'🍫':'☕'));
+card.append(media);
+const info=el('div','catalog-info');info.append(el('h3','catalog-name',p.name));
+const prices=el('div','catalog-prices');
+if(cat==='Helados'){
+for(const [label,value] of [['Simple',p.simple],['Doble',p.double]]){
+const item=el('div','catalog-price-item');item.append(el('span','catalog-price-label',label),el('strong','catalog-price-value',money(value)));prices.append(item)
+}
+}else{const item=el('div','catalog-price-item');item.append(el('strong','catalog-price-value',money(p.price)));prices.append(item)}
+info.append(prices);card.append(info);grid.append(card)
+}
+section.append(grid);root.append(section)
+}
+if(!shown)root.textContent='Pronto publicaremos nuestra carta 🍦';
+}catch(e){root.textContent='No se pudo cargar la carta. Intenta actualizar la página.';console.error(e)}
+}
 async function copyBank(){const b=publicBank;const lines=[['Titular',b.bank_owner],['RUT',b.bank_rut],['Banco',b.bank_name],['Tipo de cuenta',b.bank_type],['Número de cuenta',b.bank_account],['Correo',b.bank_email]].filter(x=>x[1]).map(x=>x.join(': '));const msg=document.getElementById('message');if(!lines.length){msg.textContent='Datos bancarios aún no configurados';return}try{await navigator.clipboard.writeText(lines.join('\n'));msg.textContent='¡Datos copiados!'}catch{msg.textContent=lines.join(' · ')}}
 async function initAdmin(){const login=document.getElementById('login'),workspace=document.getElementById('workspace');async function show(){const {data:{user}}=await sb.auth.getUser();if(!user){login.hidden=false;workspace.hidden=true;return}const {data,error}=await sb.from('mona_admins').select('user_id').eq('user_id',user.id).maybeSingle();if(error||!data){notify('Esta cuenta no tiene permiso de administración.');await sb.auth.signOut();login.hidden=false;workspace.hidden=true;return}login.hidden=true;workspace.hidden=false;await renderAdmin()}const forgot=document.getElementById('forgotPassword'),recovery=document.getElementById('recoveryForm'),resetSection=document.getElementById('resetSection'),resetForm=document.getElementById('resetPasswordForm');
 forgot.onclick=()=>{recovery.hidden=!recovery.hidden;notify('Ingresa tu correo para recibir un enlace de recuperación.')};

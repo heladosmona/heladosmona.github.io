@@ -25,9 +25,9 @@ const card=el('article','catalog-card');
 const media=el('div','catalog-media');
 if(p.image_url){
 const img=el('img','catalog-image');img.src=p.image_url;img.alt=p.name;img.loading='lazy';
-img.onerror=()=>{media.replaceChildren(el('span','catalog-placeholder',cat==='Helados'?'🍨':cat==='Cuchuflís'?'🍫':'☕'))};
+img.onerror=()=>{media.replaceChildren(Object.assign(el('img','catalog-fallback-logo'),{src:'mona-logo.webp',alt:'MO-NA'}))};
 media.append(img);
-}else media.append(el('span','catalog-placeholder',cat==='Helados'?'🍨':cat==='Cuchuflís'?'🍫':'☕'));
+}else media.append(Object.assign(el('img','catalog-fallback-logo'),{src:'mona-logo.webp',alt:'MO-NA'}));
 card.append(media);
 const info=el('div','catalog-info');info.append(el('h3','catalog-name',p.name));
 const prices=el('div','catalog-prices');

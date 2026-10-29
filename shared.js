@@ -74,6 +74,36 @@ photoInput.value=publicUrl.publicUrl;notify('Fotografía subida y guardada ✓')
 finally{uploadInput.disabled=false;uploadInput.value=''}
 };
 uploadLabel.append(uploadInput);r.append(uploadLabel);const actions=el('div','editactions'),toggle=el('label','','Disponible '),check=el('input');check.type='checkbox';check.checked=p.available;toggle.append(check);actions.append(toggle);const save=el('button','','Guardar');save.onclick=async()=>{save.disabled=true;const values={name:name.value.trim(),available:check.checked,image_url:photoInput.value.trim()||null};for(const [k,i] of Object.entries(inputs))values[k]=Number(i.value);const {error}=await sb.from('mona_products').update(values).eq('id',p.id);notify(error?'Error: '+error.message:'Producto guardado ✓');window.alert(error?'No se pudo guardar: '+error.message:'Producto guardado correctamente ✓');save.disabled=false};actions.append(save);const del=el('button','del','Eliminar');del.onclick=async()=>{if(!confirm('¿Eliminar producto?'))return;const {error}=await sb.from('mona_products').delete().eq('id',p.id);if(error)notify('Error: '+error.message);else{notify('Producto eliminado');await renderAdmin()}};actions.append(del);r.append(actions);s.append(r)}root.append(s)}const bank=document.getElementById('bank');bank.replaceChildren();const bankInputs={};for(const [k,label] of Object.entries({bank_owner:'Titular',bank_rut:'RUT',bank_name:'Banco',bank_type:'Tipo de cuenta',bank_account:'Número de cuenta',bank_email:'Correo'})){const l=el('label','',label),i=el('input');i.value=d.bank[k]||'';bankInputs[k]=i;l.append(i);bank.append(l)}const saveBank=el('button','','Guardar datos bancarios');saveBank.onclick=async()=>{const values={id:1};for(const [k,i] of Object.entries(bankInputs))values[k]=i.value;const {error}=await sb.from('mona_settings').upsert(values);notify(error?'Error: '+error.message:'Datos bancarios guardados ✓')};bank.append(saveBank)}catch(e){notify('Error: '+e.message);root.textContent='No se pudieron cargar los productos.'}}
-if(document.getElementById('newProduct')) document.getElementById('newProduct').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),cat=String(f.get('category'));const item={category:cat,name:String(f.get('name')).trim(),available:true,...(cat==='Helados'?{simple:0,double:0}:{price:0})};const {error}=await sb.from('mona_products').insert(item);if(error)notify('Error: '+error.message);else{notify('Producto agregado ✓');e.target.reset();await renderAdmin()}}
+const newProductForm=document.getElementById('newProduct');
+if(newProductForm){
+ const categorySelect=document.getElementById('newCategory');
+ const icePrices=document.getElementById('newIcePrices');
+ const singlePrice=document.getElementById('newSinglePrice');
+ const updatePriceFields=()=>{
+  const cat=categorySelect.value;
+  icePrices.hidden=cat!=='Helados';
+  singlePrice.hidden=!cat||cat==='Helados';
+  for(const input of icePrices.querySelectorAll('input'))input.required=cat==='Helados';
+  for(const input of singlePrice.querySelectorAll('input'))input.required=!!cat&&cat!=='Helados';
+ };
+ categorySelect.onchange=updatePriceFields;updatePriceFields();
+ newProductForm.onsubmit=async e=>{
+  e.preventDefault();
+  const f=new FormData(newProductForm),cat=String(f.get('category')||'');
+  if(!categories.includes(cat)){notify('Selecciona una categoría.');return}
+  const name=String(f.get('name')||'').trim();
+  if(!name){notify('Ingresa el nombre del producto.');return}
+  const item={category:cat,name,available:true,...(cat==='Helados'?{simple:Number(f.get('simple')),double:Number(f.get('double')),price:0}:{simple:0,double:0,price:Number(f.get('price'))})};
+  const button=newProductForm.querySelector('button[type="submit"]');button.disabled=true;
+  try{
+   const {error}=await sb.from('mona_products').insert(item);
+   if(error)throw error;
+   notify('Producto agregado correctamente ✓');
+   newProductForm.reset();updatePriceFields();await renderAdmin();
+   newProductForm.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(error){notify('No se pudo agregar: '+error.message)}
+  finally{button.disabled=false}
+ };
+}
 
 export {initAdmin,renderMenu,copyBank};

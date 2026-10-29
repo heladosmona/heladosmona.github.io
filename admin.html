@@ -1,7 +1,7 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MO-NA | Administración</title><link rel="stylesheet" href="style.css"></head><body><main><header><img src="mona-logo.webp" alt="MO-NA" style="width:min(180px,65%);display:block;margin:auto"><p>Administración de carta</p></header><p><a href="index.html">← Ver carta</a></p><p id="status" role="status">Preparando inicio de sesión...</p><section id="login" class="panel"><h2>Ingresar</h2><form id="loginForm" onsubmit="event.preventDefault()"><label>Correo<input name="email" type="email" autocomplete="username" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label><button>Iniciar sesión</button></form></section><div id="workspace" hidden><button id="logout" type="button">Cerrar sesión</button><div id="admin"></div><section class="panel"><h2>Agregar producto</h2><form id="newProduct"><label>Categoría<select name="category"><option>Helados</option><option>Cuchuflís</option><option>Café de grano</option></select></label><label>Nombre<input name="name" required></label><button>Agregar producto</button></form></section><section class="panel"><h2>Datos bancarios</h2><div id="bank"></div></section></div></main><script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.57.0';
 window.supabase={createClient};
-const script=document.createElement('script');script.src='shared.js?v=3';
+const script=document.createElement('script');script.src='shared.js?v=4';
 script.onload=()=>{try{initAdmin()}catch(e){document.getElementById('status').textContent='Error al iniciar: '+e.message}};
 document.body.append(script);
 </script></body></html>

@@ -1,7 +1,11 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MO-NA | Helados y cafetería</title><link rel="stylesheet" href="style.css"></head><body><main><header><img src="mona-logo.webp" alt="Logo MO-NA" style="width:min(270px,75%);height:auto;display:block;margin:0 auto 8px"><p>Helados • Cuchuflís • Café de grano</p></header><div class="hero">Un gustito para alegrarte el día 🐻</div><div id="menu"></div><section class="panel"><h2>Transferencia</h2><p>Copia los datos bancarios del negocio</p><button id="copy">Copiar datos bancarios</button><div id="message"></div></section><section class="panel" style="text-align:center"><h2>Síguenos en Instagram</h2><a href="https://www.instagram.com/mona_cunco/" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#ec4899;color:#fff;text-decoration:none;font-weight:800;border-radius:14px;padding:13px 20px">📸 @mona_cunco</a></section><footer>MO-NA · Carta digital</footer></main><script type="module">
-import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.57.0';
-window.supabase={createClient};
-const script=document.createElement('script');script.src='shared.js?v=3';
-script.onload=()=>{try{renderMenu();document.getElementById('copy').onclick=copyBank}catch(e){document.getElementById('menu').textContent='Error al iniciar: '+e.message}};
-document.body.append(script);
+try {
+  const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2.57.0');
+  window.supabase={createClient};
+  const app=await import('./shared.js?v=6');
+  await app.renderMenu();document.getElementById('copy').onclick=app.copyBank;
+} catch(e) {
+  console.error(e);
+  document.getElementById('menu').textContent='Error al iniciar: '+e.message;
+}
 </script></body></html>

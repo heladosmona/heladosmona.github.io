@@ -123,7 +123,7 @@ if(newProductForm){
    const {error}=await sb.from('mona_products').insert(item);
    if(error)throw error;
    notify('Producto agregado con fotografía y precios ✓');
-   newProductForm.reset();clearPreview();updatePriceFields();await renderAdmin();
+   newProductForm.reset();categorySelect.value=cat;clearPreview();updatePriceFields();await renderAdmin();
    newProductForm.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(error){notify('No se pudo agregar: '+error.message)}
   finally{button.disabled=false}

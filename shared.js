@@ -87,6 +87,19 @@ if(newProductForm){
   for(const input of singlePrice.querySelectorAll('input'))input.required=!!cat&&cat!=='Helados';
  };
  categorySelect.onchange=updatePriceFields;updatePriceFields();
+ const photoField=document.getElementById('newProductPhoto');
+ const preview=document.getElementById('newPhotoPreview');
+ const previewImage=document.getElementById('newPhotoPreviewImage');
+ let previewUrl=null;
+ const clearPreview=()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=null;preview.hidden=true;previewImage.removeAttribute('src')};
+ photoField.onchange=()=>{
+  clearPreview();
+  const file=photoField.files?.[0];
+  if(!file)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){notify('Selecciona una imagen JPG, PNG o WEBP.');photoField.value='';return}
+  if(file.size>5*1024*1024){notify('La fotografía debe pesar menos de 5 MB.');photoField.value='';return}
+  previewUrl=URL.createObjectURL(file);previewImage.src=previewUrl;preview.hidden=false;
+ };
  newProductForm.onsubmit=async e=>{
   e.preventDefault();
   const f=new FormData(newProductForm),cat=String(f.get('category')||'');
@@ -94,12 +107,23 @@ if(newProductForm){
   const name=String(f.get('name')||'').trim();
   if(!name){notify('Ingresa el nombre del producto.');return}
   const item={category:cat,name,available:true,...(cat==='Helados'?{simple:Number(f.get('simple')),double:Number(f.get('double')),price:0}:{simple:0,double:0,price:Number(f.get('price'))})};
+  const file=photoField.files?.[0];
+  if(file&&(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)){notify('La fotografía debe ser JPG, PNG o WEBP y pesar menos de 5 MB.');return}
   const button=newProductForm.querySelector('button[type="submit"]');button.disabled=true;
   try{
+   if(file){
+    notify('Subiendo fotografía...');
+    const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
+    const path='productos/nuevos/'+crypto.randomUUID()+'.'+ext;
+    const {error:uploadError}=await sb.storage.from('mona-fotos').upload(path,file,{contentType:file.type,upsert:false});
+    if(uploadError)throw uploadError;
+    item.image_url=sb.storage.from('mona-fotos').getPublicUrl(path).data.publicUrl;
+   }
+   notify('Guardando producto...');
    const {error}=await sb.from('mona_products').insert(item);
    if(error)throw error;
-   notify('Producto agregado correctamente ✓');
-   newProductForm.reset();updatePriceFields();await renderAdmin();
+   notify('Producto agregado con fotografía y precios ✓');
+   newProductForm.reset();clearPreview();updatePriceFields();await renderAdmin();
    newProductForm.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(error){notify('No se pudo agregar: '+error.message)}
   finally{button.disabled=false}

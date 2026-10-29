@@ -1,6 +1,6 @@
 const SUPABASE_URL='https://csypqcyfijhageacaqew.supabase.co';
 const SUPABASE_KEY='sb_publishable_9pMUJg3aT0rv51i88v7hUg_DFsIujhH';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage,storageKey:'mona-admin-session'}});
 const categories=['Helados','Cuchuflís','Café de grano'];
 const money=v=>'$'+Number(v||0).toLocaleString('es-CL');
 const el=(t,c,txt)=>{const x=document.createElement(t);if(c)x.className=c;if(txt!==undefined)x.textContent=txt;return x};

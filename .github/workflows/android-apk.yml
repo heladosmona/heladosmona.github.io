@@ -20,7 +20,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Instalar SDK Android
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+        run: |
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
       - name: Preparar icono MO-NA
         run: |
           python3 -m pip install --user pillow

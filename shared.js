@@ -73,7 +73,23 @@ photoInput.value=publicUrl.publicUrl;notify('Fotografía subida y guardada ✓')
 }catch(e){notify('Error al subir fotografía: '+e.message)}
 finally{uploadInput.disabled=false;uploadInput.value=''}
 };
-uploadLabel.append(uploadInput);r.append(uploadLabel);const actions=el('div','editactions'),toggle=el('label','','Disponible '),check=el('input');check.type='checkbox';check.checked=p.available;toggle.append(check);actions.append(toggle);const save=el('button','','Guardar');save.onclick=async()=>{save.disabled=true;const values={name:name.value.trim(),available:check.checked,image_url:photoInput.value.trim()||null};for(const [k,i] of Object.entries(inputs))values[k]=Number(i.value);const {error}=await sb.from('mona_products').update(values).eq('id',p.id);notify(error?'Error: '+error.message:'Producto guardado ✓');window.alert(error?'No se pudo guardar: '+error.message:'Producto guardado correctamente ✓');save.disabled=false};actions.append(save);const del=el('button','del','Eliminar');del.onclick=async()=>{if(!confirm('¿Eliminar producto?'))return;const {error}=await sb.from('mona_products').delete().eq('id',p.id);if(error)notify('Error: '+error.message);else{notify('Producto eliminado');await renderAdmin()}};actions.append(del);r.append(actions);s.append(r)}root.append(s)}const bank=document.getElementById('bank');bank.replaceChildren();const bankInputs={};for(const [k,label] of Object.entries({bank_owner:'Titular',bank_rut:'RUT',bank_name:'Banco',bank_type:'Tipo de cuenta',bank_account:'Número de cuenta',bank_email:'Correo'})){const l=el('label','',label),i=el('input');i.value=d.bank[k]||'';bankInputs[k]=i;l.append(i);bank.append(l)}const saveBank=el('button','','Guardar datos bancarios');saveBank.onclick=async()=>{const values={id:1};for(const [k,i] of Object.entries(bankInputs))values[k]=i.value;const {error}=await sb.from('mona_settings').upsert(values);notify(error?'Error: '+error.message:'Datos bancarios guardados ✓')};bank.append(saveBank)}catch(e){notify('Error: '+e.message);root.textContent='No se pudieron cargar los productos.'}}
+uploadLabel.append(uploadInput);r.append(uploadLabel);const actions=el('div','editactions'),toggle=el('label','','Disponible '),check=el('input');check.type='checkbox';check.checked=p.available;toggle.append(check);actions.append(toggle);const save=el('button','','Guardar');save.onclick=async()=>{save.disabled=true;const values={name:name.value.trim(),available:check.checked,image_url:photoInput.value.trim()||null};for(const [k,i] of Object.entries(inputs))values[k]=Number(i.value);const {error}=await sb.from('mona_products').update(values).eq('id',p.id);notify(error?'Error: '+error.message:'Producto guardado ✓');window.alert(error?'No se pudo guardar: '+error.message:'Producto guardado correctamente ✓');save.disabled=false};actions.append(save);
+const removePhoto=el('button','del','🗑 Quitar foto');
+removePhoto.type='button';
+removePhoto.disabled=!p.image_url;
+removePhoto.onclick=async()=>{
+ if(!confirm('¿Quitar la fotografía de este producto? El producto y sus precios se conservarán.'))return;
+ removePhoto.disabled=true;
+ try{
+  const {error}=await sb.from('mona_products').update({image_url:null}).eq('id',p.id);
+  if(error)throw error;
+  photoInput.value='';p.image_url=null;
+  notify('Fotografía quitada ✓');
+  window.alert('Fotografía quitada correctamente. El producto sigue disponible.');
+ }catch(e){notify('No se pudo quitar la fotografía: '+e.message);removePhoto.disabled=false}
+};
+actions.append(removePhoto);
+const del=el('button','del','Eliminar');del.onclick=async()=>{if(!confirm('¿Eliminar producto?'))return;const {error}=await sb.from('mona_products').delete().eq('id',p.id);if(error)notify('Error: '+error.message);else{notify('Producto eliminado');await renderAdmin()}};actions.append(del);r.append(actions);s.append(r)}root.append(s)}const bank=document.getElementById('bank');bank.replaceChildren();const bankInputs={};for(const [k,label] of Object.entries({bank_owner:'Titular',bank_rut:'RUT',bank_name:'Banco',bank_type:'Tipo de cuenta',bank_account:'Número de cuenta',bank_email:'Correo'})){const l=el('label','',label),i=el('input');i.value=d.bank[k]||'';bankInputs[k]=i;l.append(i);bank.append(l)}const saveBank=el('button','','Guardar datos bancarios');saveBank.onclick=async()=>{const values={id:1};for(const [k,i] of Object.entries(bankInputs))values[k]=i.value;const {error}=await sb.from('mona_settings').upsert(values);notify(error?'Error: '+error.message:'Datos bancarios guardados ✓')};bank.append(saveBank)}catch(e){notify('Error: '+e.message);root.textContent='No se pudieron cargar los productos.'}}
 const newProductForm=document.getElementById('newProduct');
 if(newProductForm){
  const categorySelect=document.getElementById('newCategory');
